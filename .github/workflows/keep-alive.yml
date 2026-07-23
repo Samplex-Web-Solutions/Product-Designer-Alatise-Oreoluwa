@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Runs automatically every 5 days at midnight UTC to prevent the 7-day inactivity pause
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Allows you to manually trigger it from the Actions tab for testing
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make API Request to Supabase
+        run: |
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/projects?select=id&limit=1" \
+          -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}"
