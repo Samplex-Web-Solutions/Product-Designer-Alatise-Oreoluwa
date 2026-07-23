@@ -1,94 +1,249 @@
-# React + Vite
+# 🎨 Modern Designer Portfolio - Alatise Oreoluwa
 
+A high-performance, visually immersive portfolio landing page designed to showcase creative work with cutting-edge web technologies. Built with **React + Vite**, this project combines smooth animations, interactive effects, and a sophisticated dark-purple aesthetic to create an unforgettable first impression.
 
- Modern Designer Portfolio - Sarah Mitchell
+## ✨ Key Features
 
-A high-performance, visually immersive portfolio landing page built with React, Tailwind CSS, and Lucide React. This project features a sophisticated dark-purple aesthetic with dynamic geometric backgrounds and an interactive "spotlight" mouse-tracking system.
+- **Interactive Spotlight Effect** – A custom radial gradient that follows your mouse cursor, dynamically illuminating the background for an engaging, immersive experience
+- **Geometric Parallax Layers** – Multiple SVG-style geometric shapes (circles, squares, triangles) that move at different speeds, creating stunning 3D depth perception
+- **Glassmorphism UI** – Premium, modern interface elements using backdrop-blur effects and semi-transparent borders
+- **Fully Responsive Design** – Optimized for desktop, tablet, and mobile devices using Tailwind CSS utilities
+- **Smooth Animations** – Elegant entry animations and micro-interactions on call-to-action buttons
+- **Performance-Optimized** – Built with Vite for lightning-fast development and production builds
 
- Key Features
+## 🛠️ Tech Stack
 
-Interactive Spotlight Effect: A custom radial-gradient that follows the user's mouse cursor, dynamically illuminating the background.
+| Technology | Purpose |
+|---|---|
+| **React 18** | UI framework for building interactive components |
+| **Vite** | Lightning-fast build tool and dev server |
+| **Tailwind CSS** | Utility-first CSS framework for responsive styling |
+| **Lucide React** | Beautiful, consistent icon library |
+| **React Hooks** | State management (useState, useEffect, useRef) |
 
-Geometric Parallax: Multiple SVG-style geometric layers (circles, squares, triangles) that move at different speeds relative to mouse movement, creating a sense of 3D depth.
+## 🎯 Design System
 
-Glassmorphism UI: High-end UI elements using backdrop-blur and semi-transparent borders for a premium feel.
+### Color Palette
 
-Fully Responsive: Optimized for all screen sizes using Tailwind's mobile-first responsive utilities.
+| Role | Color | Hex |
+|---|---|---|
+| Primary Background | Deep Purple | `#2a1b54` |
+| Accent | Vibrant Orange | `#f97316` |
+| Glass Surfaces | Semi-transparent White | `rgba(255, 255, 255, 0.05)` |
+| Text Primary | Purple-100 | Default |
+| Text Secondary | Purple-100 (70% opacity) | `rgba(100, 50, 200, 0.7)` |
 
-Modern Animations: Smooth entry animations and bouncing micro-interactions for key CTAs.
+### Typography
 
- Tech Stack
+- **Headings** – Sans-serif, bold weight, tight letter-spacing
+- **Body Text** – Sans-serif, light weight, high contrast for readability
+- **Accent Text** – Orange highlights for CTAs and interactive elements
 
-Framework: React.js
+## 🚀 Getting Started
 
-Styling: Tailwind CSS
+### Prerequisites
 
-Icons: Lucide React
+- **Node.js** 16.x or higher
+- **npm** or **yarn** package manager
 
-State Management: React Hooks (useState, useEffect)
+### Installation
 
- Design System
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Samplex-Web-Solutions/Product-Designer-Alatise-Oreoluwa.git
+   cd Product-Designer-Alatise-Oreoluwa
+   ```
 
-Colors
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-Primary Background: #2a1b54 (Deep Purple)
+3. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-Accent Color: #f97316 (Vibrant Orange)
+   The site will be available at `http://localhost:5173`
 
-Secondary Surfaces: rgba(255, 255, 255, 0.05) (Glass)
+### Building for Production
 
-Typography
+```bash
+npm run build
+# or
+yarn build
+```
 
-Headings: Sans-serif, Bold (Tracking-tight)
+This creates an optimized, minified build in the `dist/` folder.
 
-Body: Sans-serif, Light (Purple-100/70)
+### Preview Production Build Locally
 
-portfolio-app/
-├── public/              # Static assets (favicons, etc.)
-├── src/
-│   ├── api/             # CMS client configuration (e.g., sanity.js)
-│   ├── components/      # Reusable UI pieces
-│   │   ├── Hero.jsx     # The hero section code
-│   │   ├── ProjectCard.jsx
-│   │   └── Navbar.jsx
-│   ├── hooks/           # Custom hooks for mouse tracking/data fetching
-│   ├── pages/           # Main page views
-│   │   └── Home.jsx     # Orchestrates sections
-│   ├── App.jsx          # Root component
-│   └── main.jsx         # Entry point
-├── .env                 # CMS API keys and Project IDs
-├── tailwind.config.js   # Custom theme & color configurations
-└── README.md            # Documentation-
+```bash
+npm run preview
+# or
+yarn preview
+```
 
+## ⚙️ Customization
 
- Customization
+### Adjusting the Spotlight Effect
 
-Changing the Spotlight
+Edit the spotlight intensity in `src/App.jsx`:
 
-The spotlight intensity can be adjusted in App.jsx within the background style of the spotlight div. Change the 600px value to adjust the radius or the rgba alpha value for brightness.
+```javascript
+// In the background style of the spotlight div
+// Change the radius (currently 600px) to adjust coverage area
+// Adjust rgba alpha value (0-1) for brightness
+style={{
+  background: `radial-gradient(circle 600px at ${mousePosition.x}px ${mousePosition.y}px, rgba(249, 115, 22, 0.15) 0%, transparent 100%)`
+}}
+```
 
-Modifying Geometric Shapes
+### Modifying Geometric Shapes
 
-To add or change shapes, look for the "Decorative Geometric Shapes" comment in App.jsx. Each shape uses a different translation multiplier (e.g., mousePosition.nX * -30) to control its parallax depth.
+Look for the "Decorative Geometric Shapes" section in `src/App.jsx`. Each shape uses a parallax multiplier to control its depth:
 
- License
+```javascript
+// Example: Circle layer
+transform: `translate(${mousePosition.x * -20}px, ${mousePosition.y * -20}px)`
+// Larger multiplier = stronger parallax effect
+```
 
-This project is open-source and free to use for personal portfolios.
+### Changing Colors
 
+Update the color values in `tailwind.config.js`:
 
+```javascript
+theme: {
+  colors: {
+    'primary-purple': '#2a1b54',
+    'accent-orange': '#f97316',
+    // ... more colors
+  }
+}
+```
 
+Or override inline in JSX using Tailwind classes:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+```jsx
+<div className="bg-gradient-to-br from-purple-900 to-purple-800">
+  {/* Content */}
+</div>
+```
 
-Currently, two official plugins are available:
+## 📱 Responsive Design
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The project is mobile-first, with breakpoints:
 
-## React Compiler
+- **Mobile** – 320px and up
+- **Tablet** – 768px and up (`md:`)
+- **Desktop** – 1024px and up (`lg:`)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Use Tailwind's responsive prefixes to adjust components:
 
-## Expanding the ESLint configuration
+```jsx
+<div className="text-sm md:text-base lg:text-lg">
+  Responsive text
+</div>
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📦 Dependencies
+
+### Core
+- `react` – UI library
+- `react-dom` – React rendering
+- `vite` – Build tool
+
+### Styling & UI
+- `tailwindcss` – Utility CSS framework
+- `lucide-react` – Icon library
+- `autoprefixer` – CSS vendor prefixes
+
+### Development
+- `@vitejs/plugin-react` – React Fast Refresh support
+- `eslint` – Code quality linting
+- `tailwindcss` (dev) – Development support
+
+## 🧪 Development Workflows
+
+### Hot Module Replacement (HMR)
+
+Changes to files automatically refresh the browser without losing state:
+
+```bash
+npm run dev
+```
+
+### Linting
+
+Check code quality:
+
+```bash
+npm run lint
+```
+
+### Building & Previewing
+
+Test the production build locally:
+
+```bash
+npm run build
+npm run preview
+```
+
+## 🌐 Deployment
+
+### Vercel (Recommended)
+
+1. Push code to GitHub
+2. Go to [vercel.com](https://vercel.com) and connect your repo
+3. Vercel auto-detects Vite and deploys automatically
+
+### Netlify
+
+```bash
+npm run build
+# Deploy the dist/ folder to Netlify
+```
+
+### GitHub Pages
+
+See [Vite deployment docs](https://vitejs.dev/guide/static-deploy.html) for GitHub Pages setup.
+
+## 📄 License
+
+This project is open-source and available for personal portfolio use.
+
+## 🤝 Contributing
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit changes (`git commit -am 'Add feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+## 📞 Support & Questions
+
+For issues, questions, or suggestions:
+
+- Open an [Issue](https://github.com/Samplex-Web-Solutions/Product-Designer-Alatise-Oreoluwa/issues)
+- Check existing [Discussions](https://github.com/Samplex-Web-Solutions/Product-Designer-Alatise-Oreoluwa/discussions)
+
+## 🎓 Learning Resources
+
+- [React Documentation](https://react.dev)
+- [Vite Guide](https://vitejs.dev/guide/)
+- [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- [Lucide React Icons](https://lucide.dev/icons/)
+
+---
+
+**Built with ❤️ by Samplex Web Solutions**
+
+*Last updated: July 2026*
