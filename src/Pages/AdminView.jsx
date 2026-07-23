@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../superbaseClient';
 import { Trash2, Upload, Loader2, LogOut } from 'lucide-react';
+import DeleteModal from '../Components/Modal';
 
 const AdminView = () => {
   const [projects, setProjects] = useState([]);
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
+  const [projectYear, setProjectYear] = useState('');
   const [description, setDescription] = useState('');
   const [about, setAbout] = useState('');
   const [projectUrl, setProjectUrl] = useState('');
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+
+  // Modal states
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   useEffect(() => {
     fetchAdminProjects();
@@ -25,6 +31,19 @@ const AdminView = () => {
     await supabase.auth.signOut();
   };
 
+  const handleFileChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const filesWithPreview = selectedFiles.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+    setFiles(filesWithPreview);
+  };
+
+  const removeFile = (indexToRemove) => {
+    setFiles(files.filter((_, index) => index !== indexToRemove));
+  };
+
   const handleUpload = async (e) => {
     e.preventDefault();
     if (files.length === 0 || !title) return alert('Please provide a title and select at least one image.');
@@ -34,13 +53,13 @@ const AdminView = () => {
       const uploadedImageUrls = [];
 
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const fileItem = files[i];
+        const sanitizedName = fileItem.file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
         const fileName = `${Date.now()}-${i}-${sanitizedName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('project-images')
-          .upload(fileName, file);
+          .upload(fileName, fileItem.file);
 
         if (uploadError) throw uploadError;
 
@@ -55,6 +74,7 @@ const AdminView = () => {
         { 
           title, 
           category, 
+          project_year: projectYear,
           description, 
           about,
           project_url: projectUrl, 
@@ -66,6 +86,7 @@ const AdminView = () => {
 
       setTitle('');
       setCategory('');
+      setProjectYear('');
       setDescription('');
       setAbout('');
       setProjectUrl('');
@@ -80,20 +101,29 @@ const AdminView = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
-    const { error } = await supabase.from('projects').delete().eq('id', id);
+  const promptDelete = (id) => {
+    setProjectToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!projectToDelete) return;
+
+    const { error } = await supabase.from('projects').delete().eq('id', projectToDelete);
     if (error) {
-      alert('Error deleting project');
-      return;
+      alert('Error deleting project: ' + error.message);
+    } else {
+      fetchAdminProjects();
     }
-    fetchAdminProjects();
+
+    setIsDeleteModalOpen(false);
+    setProjectToDelete(null);
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0a1e] text-white pt-32 pb-20 px-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-4xl font-bold">Super Admin Panel</h2>
+    <div className="min-h-screen bg-[#0f0a1e] text-white pt-32 pb-20 px-4 md:px-6 w-full">
+      <div className="flex md:flex-row justify-between items-center mb-8">
+        <h2 className="text-base md:text-4xl font-bold">Hello, Alatise Comfort</h2>
         <button 
           onClick={handleLogout}
           className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"
@@ -102,39 +132,68 @@ const AdminView = () => {
         </button>
       </div>
 
-      <form onSubmit={handleUpload} className="bg-white/5 border border-white/10 p-8 rounded-3xl space-y-6 mb-12 backdrop-blur-xl">
+      <form onSubmit={handleUpload} className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-3xl space-y-6 mb-12 backdrop-blur-xl">
         <h3 className="text-xl font-bold text-orange-400">Add New Project</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <input 
             type="text" placeholder="Project Title" value={title} onChange={e => setTitle(e.target.value)} required
-            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500"
+            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500 md:col-span-1"
           />
           <input 
             type="text" placeholder="Category (e.g. Fintech / UI)" value={category} onChange={e => setCategory(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500"
+            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500 md:col-span-1"
+          />
+          <input 
+            type="text" placeholder="Project Year (e.g. 2024)" value={projectYear} onChange={e => setProjectYear(e.target.value)}
+            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500 md:col-span-1"
           />
           <input 
             type="url" placeholder="Project URL (Optional)" value={projectUrl} onChange={e => setProjectUrl(e.target.value)}
-            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500 md:col-span-2"
+            className="bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500 md:col-span-3"
           />
-          <div className="md:col-span-2">
+          <div className="md:col-span-3">
             <input 
               type="text" placeholder="Short description for card display..." value={description} onChange={e => setDescription(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500"
             />
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-3">
             <textarea 
               placeholder="About the project (detailed case study write-up for sub-page)..." rows="5" value={about} onChange={e => setAbout(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-orange-500 resize-none"
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-xs uppercase tracking-widest text-orange-400 font-bold mb-2">Project Images (Select multiple)</label>
+          
+          <div className="md:col-span-3 space-y-4">
+            <label className="block text-xs uppercase tracking-widest text-orange-400 font-bold">
+              Project Images (Select multiple)
+            </label>
             <input 
-              type="file" accept="image/*" multiple onChange={e => setFiles(e.target.files)} required
+              type="file" 
+              accept="image/*" 
+              multiple 
+              onChange={handleFileChange} 
+              required={files.length === 0}
               className="w-full text-sm text-purple-200/50 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer"
             />
+
+            {files.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                {files.map((item, index) => (
+                  <div key={index} className="relative group aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                    <img src={item.previewUrl} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-purple-200/40">{files.length} file(s) selected for upload</p>
           </div>
         </div>
         <button 
@@ -153,11 +212,11 @@ const AdminView = () => {
               <img src={project.image_urls?.[0]} alt={project.title} className="w-16 h-16 object-cover rounded-xl" />
               <div>
                 <h4 className="font-bold text-lg">{project.title}</h4>
-                <p className="text-xs text-orange-400 uppercase tracking-widest">{project.category}</p>
+                <p className="text-xs text-orange-400 uppercase tracking-widest">{project.category} {project.project_year ? `(${project.project_year})` : ''}</p>
               </div>
             </div>
             <button 
-              onClick={() => handleDelete(project.id)}
+              onClick={() => promptDelete(project.id)}
               className="p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
             >
               <Trash2 size={18} />
@@ -165,6 +224,15 @@ const AdminView = () => {
           </div>
         ))}
       </div>
+
+      {/* Reusable Delete Modal Component */}
+      <DeleteModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setProjectToDelete(null); }}
+        onConfirm={confirmDelete}
+        title="Delete Project?"
+        message="Are you sure you want to delete this project? This action cannot be undone and will permanently remove all associated images."
+      />
     </div>
   );
 };

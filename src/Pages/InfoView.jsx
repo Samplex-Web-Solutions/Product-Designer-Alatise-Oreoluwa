@@ -47,7 +47,7 @@ const InfoView = () => {
             <img
               loading="lazy"
               src="/api/placeholder/600/800" 
-              alt="Alatise Oreoluwa" 
+              alt="Oreoluwa Comfort Alatise" 
               className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
             />
             <div className="absolute inset-0 bg-orange-500/10 mix-blend-overlay" />
@@ -60,17 +60,18 @@ const InfoView = () => {
             </motion.h2>
             
             <motion.p variants={itemVariants} className="text-purple-100/70 text-lg leading-relaxed">
-              I'm Oreoluwa, a digital designer with a good eye for detail and a passion for building meaningful 
-              product experiences. From launching websites and apps to managing full-scale design systems, 
-              I merge design thinking with product strategy.
+              I'm Oreoluwa Comfort Alatise, a UI/UX Designer with over 2 years of experience designing user-centered web, mobile, and SaaS products. Skilled in UX research, wireframing, prototyping, and scalable design systems, I translate business requirements into intuitive digital experiences that improve usability, engagement, and operational efficiency.
             </motion.p>
             
             <motion.p variants={itemVariants} className="text-purple-100/50 text-md leading-relaxed">
-              Whether it's UI/UX, brand storytelling, or digital growth, I design with purpose and optimize for performance.
+              From leading digital transformation initiatives for the Abia State Government House to building SaaS products at Chrivon Tech Solutions, I design with purpose and optimize for performance.
             </motion.p>
             
             <motion.div variants={itemVariants} className="pt-6">
-              <div className="inline-flex items-center gap-4 group cursor-pointer">
+              <a 
+                href="mailto:oretoluwanimialatise@gmail.com"
+                className="inline-flex items-center gap-4 group cursor-pointer"
+              >
                 <motion.div 
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -79,30 +80,37 @@ const InfoView = () => {
                   <Mail size={20} />
                 </motion.div>
                 <span className="text-lg font-medium group-hover:text-orange-400 transition-colors">
-                  hello@mitchell.design
+                  oretoluwanimialatise@gmail.com
                 </span>
-              </div>
+              </a>
             </motion.div>
           </div>
         </section>
 
-        {/* BOTTOM SECTION: EXPERTISE & CLIENTS */}
+        {/* BOTTOM SECTION: EXPERTISE & CORE COMPETENCIES */}
         <motion.section 
           variants={itemVariants}
           className="grid grid-cols-1 md:grid-cols-2 gap-16 border-t border-white/10 pt-16"
         >
           <div>
-            <h3 className="text-orange-400 text-xs font-bold uppercase tracking-widest mb-8">Expertise</h3>
+            <h3 className="text-orange-400 text-xs font-bold uppercase tracking-widest mb-8">Core Competencies</h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {['UX Strategy', 'Design Systems', 'Prototyping'].map((skill, i) => (
+              {[
+                'UI/UX Design', 
+                'UX Research', 
+                'Design Systems', 
+                'Wireframing & Prototyping', 
+                'Usability Testing', 
+                'Product Strategy'
+              ].map((skill, i) => (
                 <motion.li 
                   key={skill}
                   variants={itemVariants}
-                  className="flex items-center gap-3 text-xl font-medium text-white/80"
+                  className="flex items-center gap-3 text-lg font-medium text-white/80"
                 >
-                  {i === 0 && <Layout size={18} className="text-white/20" />}
-                  {i === 1 && <Layers size={18} className="text-white/20" />}
-                  {i === 2 && <Cpu size={18} className="text-white/20" />}
+                  {i % 3 === 0 && <Layout size={18} className="text-white/20" />}
+                  {i % 3 === 1 && <Layers size={18} className="text-white/20" />}
+                  {i % 3 === 2 && <Cpu size={18} className="text-white/20" />}
                   {skill}
                 </motion.li>
               ))}
@@ -110,10 +118,21 @@ const InfoView = () => {
           </div>
 
           <motion.div variants={itemVariants}>
-            <h3 className="text-orange-400 text-xs font-bold uppercase tracking-widest mb-8">Selected Clients</h3>
-            <p className="text-purple-100/50 text-sm leading-loose uppercase tracking-[0.2em]">
-              Google / Spotify / Nike / Apple / Goldman Sachs / Vercel / Adobe / Meta
-            </p>
+            <h3 className="text-orange-400 text-xs font-bold uppercase tracking-widest mb-8">Experience & Background</h3>
+            <div className="space-y-4 text-purple-100/70 text-sm leading-relaxed">
+              <p>
+                <strong className="text-white">Chrivon Tech Solutions</strong> — UI/UX Designer (Remote)
+              </p>
+              <p>
+                <strong className="text-white">State Government House, Abia State (NYSC)</strong> — UI/UX Designer & Team Lead
+              </p>
+              <p>
+                <strong className="text-white">Sabinovates Technology & Innovation</strong> — Product Design Intern
+              </p>
+              <p className="pt-2 text-purple-100/40 uppercase tracking-[0.2em] text-xs">
+                Figma / Miro / Google UX Design Certified
+              </p>
+            </div>
           </motion.div>
         </motion.section>
         

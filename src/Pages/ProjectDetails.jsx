@@ -29,7 +29,7 @@ const ProjectDetail = () => {
     }
     setLoading(false);
   };
-  
+
 
   if (loading) {
     return (
@@ -52,30 +52,30 @@ const ProjectDetail = () => {
   }
 
   return (
-    <motion.main 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      className="min-h-screen bg-[#0f0a1e] text-white pt-32 pb-20 px-6 max-w-4xl mx-auto"
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-[#0f0a1e] text-white pt-0 pb-20 px-6 max-w-4xl mx-auto"
     >
-     <button 
-  onClick={() => navigate('/work')}
-  className="flex items-center gap-2 text-xs uppercase tracking-widest text-purple-200/50 hover:text-white transition-colors mb-8"
->
-  <ArrowLeft size={16} /> Back to Work
-</button>
+      <button
+        onClick={() => navigate('/work')}
+        className="flex items-center gap-2 text-xs uppercase tracking-widest text-purple-200/50 hover:text-white transition-colors mb-8"
+      >
+        <ArrowLeft size={16} /> Back to Work
+      </button>
 
       <div className="space-y-6 mb-12">
-        <p className="text-orange-400 text-xs font-bold uppercase tracking-widest">
-          {project.category} — {new Date(project.created_at).getFullYear()}
+        <p className="text-orange-400 text-[10px] font-bold uppercase tracking-widest">
+          {project.category || "Product Design"} — {project.project_year || new Date(project.created_at).getFullYear()}
         </p>
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight">{project.title}</h1>
         {project.description && (
           <p className="text-lg text-purple-100/70 font-light">{project.description}</p>
         )}
         {project.project_url && (
-          <a 
-            href={project.project_url} 
-            target="_blank" 
+          <a
+            href={project.project_url}
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-orange-500 text-black font-bold uppercase tracking-widest text-xs hover:bg-orange-400 transition-all"
           >
@@ -97,9 +97,9 @@ const ProjectDetail = () => {
       <div className="space-y-6">
         {project.image_urls?.map((imgUrl, index) => (
           <div key={index} className="rounded-3xl overflow-hidden border border-white/10 bg-white/5 aspect-video">
-            <img 
-              src={imgUrl} 
-              alt={`${project.title} - ${index + 1}`} 
+            <img
+              src={imgUrl}
+              alt={`${project.title} - ${index + 1}`}
               loading="lazy"
               className="w-full h-full object-cover"
             />

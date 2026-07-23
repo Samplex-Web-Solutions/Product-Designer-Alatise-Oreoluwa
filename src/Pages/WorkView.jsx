@@ -42,38 +42,38 @@ const WorkView = () => {
         <p className="text-purple-200/50 uppercase tracking-[0.3em] text-xs">A collection of digital artifacts</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {projects.map((project) => (
-          <motion.div 
-            key={project.id} 
+          <motion.div
+            key={project.id}
             onClick={() => navigate(`/project/${project.id}`)}
             whileHover={{ y: -5 }}
-            className="group relative aspect-[4/3] rounded-3xl overflow-hidden bg-white/5 border border-white/10 p-8 flex flex-col justify-end cursor-pointer transition-all hover:border-white/20"
+            className="group relative  rounded-3xl overflow-hidden bg-white/5 border border-white/10  flex flex-col justify-end cursor-pointer transition-all hover:border-white/20"
           >
             {/* Background Image Container */}
             {project.image_urls?.[0] && (
-              <div className="absolute inset-0 z-0">
-                <img 
-                  src={project.image_urls[0]} 
+              <div className="relative inset-0 z-0">
+                <img
+                  src={project.image_urls[0]}
                   alt={project.title}
                   loading="lazy"
-                  className="w-full h-full object-cover opacity-40 group-hover:opacity-70 grayscale group-hover:grayscale-0 scale-105 group-hover:scale-100 transition-all duration-700"
+                  className="w-full h-full aspect-square object-cover scale-105 group-hover:scale-100 transition-all duration-700"
                 />
               </div>
             )}
 
             {/* Gradient Overlay for Text Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0f0a1e] via-[#0f0a1e]/40 to-transparent z-10" />
+            <div className="absolute top-64 inset-0 bg-gradient-to-t from-[#0f0a1e] via-[#0f0a1e]/70 to-transparent z-10" />
 
             {/* Top Right Action Button Icon */}
-            <div className="absolute top-6 right-6 z-20 bg-white/10 backdrop-blur-md p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all">
+            <div className="absolute top-6 right-6 z-20 bg-orange-400 backdrop-blur-md p-3 rounded-full opacity-0 group-hover:opacity-100 transition-all">
               <ArrowUpRight size={20} className="text-white" />
             </div>
 
             {/* Content Details at the Bottom */}
-            <div className="relative z-20 space-y-1">
+            <div className="relative py-4 px-2 z-20 space-y-1">
               <p className="text-orange-400 text-[10px] font-bold uppercase tracking-widest">
-                {project.category || "Product Design"} — {new Date(project.created_at).getFullYear()}
+                {project.category || "Product Design"} hello — {project.project_year || new Date(project.created_at).getFullYear()}
               </p>
               <h3 className="text-3xl font-bold tracking-tight text-white capitalize">{project.title}</h3>
               {project.description && (
@@ -86,7 +86,7 @@ const WorkView = () => {
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-4 mt-12">
-          <button 
+          <button
             disabled={page === 1}
             onClick={() => setPage(p => Math.max(p - 1, 1))}
             className="p-3 rounded-full bg-white/5 border border-white/10 disabled:opacity-30 hover:bg-white/10 transition-colors"
@@ -96,7 +96,7 @@ const WorkView = () => {
           <span className="text-xs font-bold uppercase tracking-widest text-purple-200/70">
             Page {page} of {totalPages}
           </span>
-          <button 
+          <button
             disabled={page === totalPages}
             onClick={() => setPage(p => Math.min(p + 1, totalPages))}
             className="p-3 rounded-full bg-white/5 border border-white/10 disabled:opacity-30 hover:bg-white/10 transition-colors"

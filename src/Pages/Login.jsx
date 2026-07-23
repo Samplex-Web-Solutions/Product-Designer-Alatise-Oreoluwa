@@ -37,8 +37,8 @@ const Login = () => {
           <div className="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock size={22} />
           </div>
-          <h2 className="text-2xl font-bold tracking-tight">Super Admin Login</h2>
-          <p className="text-xs uppercase tracking-widest text-purple-200/50">Authorized Personnel Only</p>
+          <h2 className="text-2xl font-bold tracking-tight">Welcome Alatise</h2>
+          <p className="text-xs uppercase tracking-widest text-purple-200/50">Login to manage portfolio</p>
         </div>
 
         <div className="space-y-4">
