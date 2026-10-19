@@ -218,7 +218,7 @@ const AdminView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0a1e] text-white pt-10 pb-20 px-4 md:px-6 w-full">
+    <div className="flex flex-col justify-center min-h-screen bg-[#0f0a1e] text-white pt-10 pb-20 px-4 max-w-8xl md:px-6 w-full">
       <div className="flex md:flex-row justify-between items-center mb-8">
         <h2 className="text-base md:text-4xl font-bold">Hello, Alatise Comfort</h2>
         <button 
