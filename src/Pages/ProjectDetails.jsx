@@ -55,7 +55,7 @@ const ProjectDetail = () => {
     <motion.main
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-[#0f0a1e] text-white pt-0 pb-20 px-6 max-w-4xl mx-auto"
+      className="min-h-screen bg-[#0f0a1e] text-white pt-12 pb-20 px-10 max-w-8xl"
     >
       <button
         onClick={() => navigate('/work')}
@@ -68,7 +68,7 @@ const ProjectDetail = () => {
         <p className="text-orange-400 text-[10px] font-bold uppercase tracking-widest">
           {project.category || "Product Design"} — {project.project_year || new Date(project.created_at).getFullYear()}
         </p>
-        <h1 className="text-4xl md:text-6xl font-bold tracking-tight">{project.title}</h1>
+        <h1 className="text-4xl md:text-3xl font-bold tracking-tight">{project.title}</h1>
         {project.description && (
           <p className="text-lg text-purple-100/70 font-light">{project.description}</p>
         )}
@@ -86,7 +86,7 @@ const ProjectDetail = () => {
 
       {/* About Section */}
       {project.about && (
-        <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl mb-12 space-y-4">
+        <div className="bg-white/5 border border-white/10 p-8 rounded-xl backdrop-blur-xl mb-12 space-y-4">
           <h3 className="text-orange-400 text-xs font-bold uppercase tracking-widest">About The Project</h3>
           <p className="text-purple-100/80 leading-relaxed whitespace-pre-line">{project.about}</p>
         </div>
@@ -96,7 +96,7 @@ const ProjectDetail = () => {
       <h3 className="text-xl font-bold mb-6">Project Gallery</h3>
       <div className="space-y-6">
         {project.image_urls?.map((imgUrl, index) => (
-          <div key={index} className="rounded-3xl overflow-hidden border border-white/10 bg-white/5 aspect-video">
+          <div key={index} className="rounded-xl overflow-hidden border border-white/10 bg-white/5 aspect-video">
             <img
               src={imgUrl}
               alt={`${project.title} - ${index + 1}`}

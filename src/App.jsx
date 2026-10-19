@@ -6,11 +6,21 @@ import ProtectedRoute from './Components/ProtectedRoute.jsx'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import ScrollToTop from './Components/ScrollToTop.jsx'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
     <Router>
       <ScrollToTop />
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        theme="dark"
+      />
       <div className='w-full min-h-screen flex flex-col'>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -18,10 +28,7 @@ function App() {
           <Route path="/info" element={<Home />} />
           <Route path='/contact' element={<Home />} />
           <Route path="/login" element={<Login />} />
-          
-          {/* Dynamic Project Detail Preview Route */}
           <Route path="/project/:id" element={<ProjectDetail />} />
-
           <Route 
             path='/admin' 
             element={
@@ -30,7 +37,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
           <Route path="*" element={<Home />} />
         </Routes>
       </div>

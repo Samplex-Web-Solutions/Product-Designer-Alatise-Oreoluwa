@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../superbaseClient';
-import { Trash2, Upload, Loader2, LogOut } from 'lucide-react';
+import { Trash2, Upload, Loader2, LogOut, X } from 'lucide-react';
 import DeleteModal from '../Components/Modal';
+import { toast } from 'react-toastify';
 
 const AdminView = () => {
   const [projects, setProjects] = useState([]);
@@ -11,8 +12,18 @@ const AdminView = () => {
   const [description, setDescription] = useState('');
   const [about, setAbout] = useState('');
   const [projectUrl, setProjectUrl] = useState('');
-  const [files, setFiles] = useState([]);
+  
+  // Cover Image States (Frontview)
+  const [existingCoverUrl, setExistingCoverUrl] = useState('');
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState('');
+
+  // Gallery Images States
+  const [existingGalleryUrls, setExistingGalleryUrls] = useState([]);
+  const [newGalleryFiles, setNewGalleryFiles] = useState([]);
+
   const [uploading, setUploading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   // Modal states
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -29,33 +40,110 @@ const AdminView = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    toast.info("Logged out successfully");
   };
 
-  const handleFileChange = (e) => {
+  // Handle Cover Image Selection
+  const handleCoverChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setCoverFile(file);
+      setCoverPreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Handle Multiple Gallery Images Selection
+  const handleGalleryChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
     const filesWithPreview = selectedFiles.map(file => ({
       file,
       previewUrl: URL.createObjectURL(file)
     }));
-    setFiles(filesWithPreview);
+    setNewGalleryFiles(prev => [...prev, ...filesWithPreview]);
   };
 
-  const removeFile = (indexToRemove) => {
-    setFiles(files.filter((_, index) => index !== indexToRemove));
+  const removeExistingGalleryImage = (indexToRemove) => {
+    setExistingGalleryUrls(existingGalleryUrls.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleUpload = async (e) => {
+  const removeNewGalleryFile = (indexToRemove) => {
+    setNewGalleryFiles(newGalleryFiles.filter((_, index) => index !== indexToRemove));
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setTitle('');
+    setCategory('');
+    setProjectYear('');
+    setDescription('');
+    setAbout('');
+    setProjectUrl('');
+    setExistingCoverUrl('');
+    setCoverFile(null);
+    setCoverPreview('');
+    setExistingGalleryUrls([]);
+    setNewGalleryFiles([]);
+  };
+
+  const handleEditClick = (project) => {
+    setEditingId(project.id);
+    setTitle(project.title || '');
+    setCategory(project.category || '');
+    setProjectYear(project.project_year || '');
+    setDescription(project.description || '');
+    setAbout(project.about || '');
+    setProjectUrl(project.project_url || '');
+    
+    const images = project.image_urls || [];
+    const coverImage = images[0] || '';
+    const galleryImages = images.slice(1);
+
+    setExistingCoverUrl(coverImage);
+    setCoverFile(null);
+    setCoverPreview('');
+
+    setExistingGalleryUrls(galleryImages);
+    setNewGalleryFiles([]);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast.info(`Editing "${project.title}"`);
+  };
+
+  const handleSaveProject = async (e) => {
     e.preventDefault();
-    if (files.length === 0 || !title) return alert('Please provide a title and select at least one image.');
+    if (!title) return toast.warn('Please provide a project title.');
+    if (!editingId && !coverFile && existingGalleryUrls.length === 0) {
+      return toast.warn('Please select a frontview cover image.');
+    }
 
     setUploading(true);
     try {
-      const uploadedImageUrls = [];
+      let finalCoverUrl = existingCoverUrl;
 
-      for (let i = 0; i < files.length; i++) {
-        const fileItem = files[i];
+      // 1. Upload new cover image if selected
+      if (coverFile) {
+        const sanitizedName = coverFile.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+        const fileName = `cover-${Date.now()}-${sanitizedName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('project-images')
+          .upload(fileName, coverFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('project-images')
+          .getPublicUrl(fileName);
+
+        finalCoverUrl = publicUrlData.publicUrl;
+      }
+
+      // 2. Upload new gallery files
+      const newlyUploadedGalleryUrls = [];
+      for (let i = 0; i < newGalleryFiles.length; i++) {
+        const fileItem = newGalleryFiles[i];
         const sanitizedName = fileItem.file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-        const fileName = `${Date.now()}-${i}-${sanitizedName}`;
+        const fileName = `gallery-${Date.now()}-${i}-${sanitizedName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('project-images')
@@ -67,35 +155,43 @@ const AdminView = () => {
           .from('project-images')
           .getPublicUrl(fileName);
 
-        uploadedImageUrls.push(publicUrlData.publicUrl);
+        newlyUploadedGalleryUrls.push(publicUrlData.publicUrl);
       }
 
-      const { error: insertError } = await supabase.from('projects').insert([
-        { 
-          title, 
-          category, 
-          project_year: projectYear,
-          description, 
-          about,
-          project_url: projectUrl, 
-          image_urls: uploadedImageUrls 
-        }
-      ]);
+      const combinedGallery = [...existingGalleryUrls, ...newlyUploadedGalleryUrls];
+      const finalImagesArray = finalCoverUrl 
+        ? [finalCoverUrl, ...combinedGallery.filter(url => url !== finalCoverUrl)]
+        : combinedGallery;
 
-      if (insertError) throw insertError;
+      const projectData = {
+        title,
+        category,
+        project_year: projectYear,
+        description,
+        about,
+        project_url: projectUrl,
+        image_urls: finalImagesArray
+      };
 
-      setTitle('');
-      setCategory('');
-      setProjectYear('');
-      setDescription('');
-      setAbout('');
-      setProjectUrl('');
-      setFiles([]);
+      if (editingId) {
+        const { error: updateError } = await supabase
+          .from('projects')
+          .update(projectData)
+          .eq('id', editingId);
+
+        if (updateError) throw updateError;
+        toast.success('Project updated successfully!');
+      } else {
+        const { error: insertError } = await supabase.from('projects').insert([projectData]);
+        if (insertError) throw insertError;
+        toast.success('Project published successfully!');
+      }
+
+      resetForm();
       fetchAdminProjects();
-      alert('Project published successfully!');
     } catch (error) {
-      console.error('Error uploading:', error.message);
-      alert('Upload failed: ' + error.message);
+      console.error('Error saving project:', error.message);
+      toast.error('Operation failed: ' + error.message);
     } finally {
       setUploading(false);
     }
@@ -111,8 +207,9 @@ const AdminView = () => {
 
     const { error } = await supabase.from('projects').delete().eq('id', projectToDelete);
     if (error) {
-      alert('Error deleting project: ' + error.message);
+      toast.error('Error deleting project: ' + error.message);
     } else {
+      toast.success('Project deleted successfully.');
       fetchAdminProjects();
     }
 
@@ -121,7 +218,7 @@ const AdminView = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0a1e] text-white pt-32 pb-20 px-4 md:px-6 w-full">
+    <div className="min-h-screen bg-[#0f0a1e] text-white pt-10 pb-20 px-4 md:px-6 w-full">
       <div className="flex md:flex-row justify-between items-center mb-8">
         <h2 className="text-base md:text-4xl font-bold">Hello, Alatise Comfort</h2>
         <button 
@@ -132,8 +229,22 @@ const AdminView = () => {
         </button>
       </div>
 
-      <form onSubmit={handleUpload} className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-3xl space-y-6 mb-12 backdrop-blur-xl">
-        <h3 className="text-xl font-bold text-orange-400">Add New Project</h3>
+      <form onSubmit={handleSaveProject} className="bg-white/5 border border-white/10 p-4 md:p-8 rounded-3xl space-y-6 mb-12 backdrop-blur-xl">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-bold text-orange-400">
+            {editingId ? 'Edit Project' : 'Add New Project'}
+          </h3>
+          {editingId && (
+            <button 
+              type="button" 
+              onClick={resetForm}
+              className="text-xs uppercase tracking-widest text-purple-200/60 hover:text-white transition-colors underline"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <input 
             type="text" placeholder="Project Title" value={title} onChange={e => setTitle(e.target.value)} required
@@ -164,43 +275,89 @@ const AdminView = () => {
             />
           </div>
           
-          <div className="md:col-span-3 space-y-4">
+          {/* FRONTVIEW COVER IMAGE SECTION */}
+          <div className="md:col-span-3 space-y-3 border-t border-white/10 pt-4">
             <label className="block text-xs uppercase tracking-widest text-orange-400 font-bold">
-              Project Images (Select multiple)
+              Frontview Cover Image (Shown on Work Card Grid)
+            </label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleCoverChange} 
+              className="w-full text-sm text-purple-200/50 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer"
+            />
+            
+            {(coverPreview || existingCoverUrl) && (
+              <div className="relative w-32 h-32 rounded-xl overflow-hidden border border-white/10 bg-black/40 mt-2">
+                <img 
+                  src={coverPreview || existingCoverUrl} 
+                  alt="Cover Preview" 
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+            )}
+          </div>
+
+          {/* GALLERY IMAGES SECTION */}
+          <div className="md:col-span-3 space-y-4 border-t border-white/10 pt-4">
+            <label className="block text-xs uppercase tracking-widest text-orange-400 font-bold">
+              Additional Gallery Images (Case study screenshots)
             </label>
             <input 
               type="file" 
               accept="image/*" 
               multiple 
-              onChange={handleFileChange} 
-              required={files.length === 0}
+              onChange={handleGalleryChange} 
               className="w-full text-sm text-purple-200/50 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer"
             />
 
-            {files.length > 0 && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
-                {files.map((item, index) => (
-                  <div key={index} className="relative group aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40">
-                    <img src={item.previewUrl} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeFile(index)}
-                      className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
+            {existingGalleryUrls.length > 0 && (
+              <div>
+                <p className="text-xs text-purple-200/60 mb-2">Existing Gallery Images (Click X to remove):</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {existingGalleryUrls.map((url, index) => (
+                    <div key={`existing-${index}`} className="relative group aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                      <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeExistingGalleryImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:scale-110 transition-transform"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
-            <p className="text-xs text-purple-200/40">{files.length} file(s) selected for upload</p>
+
+            {newGalleryFiles.length > 0 && (
+              <div>
+                <p className="text-xs text-orange-400 mb-2">New Images to Upload:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {newGalleryFiles.map((item, index) => (
+                    <div key={`new-${index}`} className="relative group aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                      <img src={item.previewUrl} alt={`New Preview ${index}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeNewGalleryFile(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:scale-110 transition-transform"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
         <button 
           type="submit" disabled={uploading}
           className="w-full py-4 rounded-xl bg-orange-500 text-black font-bold uppercase tracking-widest hover:bg-orange-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
         >
-          {uploading ? <><Loader2 className="animate-spin" size={18} /> Uploading...</> : <><Upload size={18} /> Publish Project</>}
+          {uploading ? <><Loader2 className="animate-spin" size={18} /> Saving...</> : editingId ? "Update Project" : <><Upload size={18} /> Publish Project</>}
         </button>
       </form>
 
@@ -215,23 +372,30 @@ const AdminView = () => {
                 <p className="text-xs text-orange-400 uppercase tracking-widest">{project.category} {project.project_year ? `(${project.project_year})` : ''}</p>
               </div>
             </div>
-            <button 
-              onClick={() => promptDelete(project.id)}
-              className="p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
-            >
-              <Trash2 size={18} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => handleEditClick(project)}
+                className="px-4 py-2 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors"
+              >
+                Edit
+              </button>
+              <button 
+                onClick={() => promptDelete(project.id)}
+                className="p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Reusable Delete Modal Component */}
       <DeleteModal 
         isOpen={isDeleteModalOpen}
         onClose={() => { setIsDeleteModalOpen(false); setProjectToDelete(null); }}
         onConfirm={confirmDelete}
         title="Delete Project?"
-        message="Are you sure you want to delete this project? This action cannot be undone and will permanently remove all associated images."
+        message="Are you sure you want to delete this project? This action cannot be undone."
       />
     </div>
   );

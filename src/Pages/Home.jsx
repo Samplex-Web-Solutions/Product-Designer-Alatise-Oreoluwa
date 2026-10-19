@@ -1,15 +1,38 @@
-import { Home } from "lucide-react";
-import { useState , useRef, useEffect} from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../Components/NavBar";
 import HomeView from "./HomeView";
 import InfoView from "./InfoView";
 import WorkView from "./WorkView";
 import Contact from "./Contact";
-import { experienceData } from "../../index.js";
-
 
 const Homes = () => {
-  const [activePage, setActivePage] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Map the current URL path to your active view state
+  const getPageFromPath = (path) => {
+    if (path === '/work') return 'work';
+    if (path === '/info') return 'info';
+    if (path === '/contact') return 'contact';
+    return 'home';
+  };
+
+  const [activePage, setActivePage] = useState(getPageFromPath(location.pathname));
+
+  // Sync state if the URL changes directly
+  useEffect(() => {
+    setActivePage(getPageFromPath(location.pathname));
+  }, [location.pathname]);
+
+  // Handle navigation updates to change the URL path cleanly
+  const handlePageChange = (page) => {
+    setActivePage(page);
+    if (page === 'home') navigate('/');
+    else navigate(`/${page}`);
+  };
+
+  // Keep your floating background animation logic...
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0, nX: 0, nY: 0 });
   const [objects, setObjects] = useState([
     { id: 1, x: 20, y: 30, vx: 0.08, vy: 0.12, size: 180, type: 'circle', color: 'border-purple-500/30' },
@@ -19,7 +42,6 @@ const Homes = () => {
   ]);
 
   const requestRef = useRef();
-
   const animate = () => {
     setObjects((prev) => prev.map((obj) => {
         let newX = obj.x + obj.vx;
@@ -52,7 +74,8 @@ const Homes = () => {
 
   return (
     <div className="relative min-h-screen w-full bg-[#0f0a1e] font-sans text-white scroll-smooth selection:bg-orange-500 selection:text-black">
-      <Navbar activePage={activePage} setActivePage={setActivePage} />
+      {/* Pass handlePageChange instead of setActivePage so it updates the URL */}
+      <Navbar activePage={activePage} setActivePage={handlePageChange} />
 
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-tr from-[#0f0a1e] via-[#1a1235] to-[#0f0a1e]" />
@@ -82,25 +105,25 @@ const Homes = () => {
         />
       </div>
 
-      {activePage === 'home' && <HomeView setActivePage={setActivePage} />}
-      {activePage === 'contact' && <Contact/>}
+      {activePage === 'home' && <HomeView setActivePage={handlePageChange} />}
+      {activePage === 'contact' && <Contact setActivePage={handlePageChange} />}
       {activePage === 'work' && <WorkView />}
       {activePage === 'info' && <InfoView />}
 
       {/* SHARED DECORATIVE FOOTER ELEMENTS */}
       <div className="fixed bottom-12 left-12 z-40 hidden lg:block opacity-20 hover:opacity-100 transition-all duration-500">
-  <a 
-    href="https://samplexweb-portfolio.vercel.app/" 
-    target="_blank" 
-    rel="noopener noreferrer"
-    className="flex flex-col gap-1 group cursor-pointer"
-  >
-    <div className="h-[1px] w-12 bg-white group-hover:w-36 transition-all duration-500" />
-    <p className="text-[9px] tracking-[0.5em] uppercase">
-      Built by <span className="font-bold">Samplex Web Solutions</span>
-    </p>
-  </a>
-</div>
+        <a 
+          href="https://samplexweb-portfolio.vercel.app/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex flex-col gap-1 group cursor-pointer"
+        >
+          <div className="h-[1px] w-12 bg-white group-hover:w-36 transition-all duration-500" />
+          <p className="text-[9px] tracking-[0.5em] uppercase">
+            Built by <span className="font-bold">Samplex Web Solutions</span>
+          </p>
+        </a>
+      </div>
     </div>
   );
 };

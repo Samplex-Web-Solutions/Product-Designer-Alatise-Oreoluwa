@@ -24,7 +24,7 @@ const InfoView = () => {
     },
   };
 
-  const imgUrl = "https://vdtfpcsonxhybduiabjj.supabase.co/storage/v1/object/public/project-images/oreinfo.png";
+  const imgUrl = "https://vdtfpcsonxhybduiabjj.supabase.co/storage/v1/object/public/project-images/ORE.png";
 
   return (
     <motion.main
@@ -44,13 +44,13 @@ const InfoView = () => {
               hidden: { opacity: 0, x: -30 },
               visible: { opacity: 1, x: 0, transition: { duration: 1 } }
             }}
-            className=" overflow-hidden rounded-3xl bg-white/5 border grayscale hover:grayscale-0 duration-500 transition-all ease-in-out border-white/10 relative group"
+            className=" overflow-hidden rounded-3xl bg-white/5 border grayscale-0 hover:grayscale duration-500 transition-all ease-in-out border-white/10 relative group"
           >
             <img
               loading="lazy"
               src={imgUrl} 
               alt="Oreoluwa Comfort Alatise" 
-              className="w-full aspect-[5/5] h-full object-cover  transition-all duration-700"
+              className="w-full aspect-[4/5] h-full object-cover  transition-all duration-700"
             />
             <div className="absolute inset-0 bg-orange-500/10 mix-blend-overlay" />
           </motion.div>
